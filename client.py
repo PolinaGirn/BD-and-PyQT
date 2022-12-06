@@ -2,7 +2,6 @@ import sys
 import json
 import socket
 import time
-import dis
 import argparse
 import logging
 import threading
@@ -11,13 +10,14 @@ from common.variables import *
 from common.utils import *
 from errors import IncorrectDataRecivedError, ReqFieldMissingError, ServerError
 from decos import log
+from metaclasses import ClientMaker
 
 # Инициализация клиентского логера
-logger = logging.getLogger('client_dist')
+logger = logging.getLogger('client')
 
 
 # Класс формировки и отправки сообщений на сервер и взаимодействия с пользователем.
-class ClientSender(threading.Thread):
+class ClientSender(threading.Thread, metaclass=ClientMaker):
     def __init__(self, account_name, sock):
         self.account_name = account_name
         self.sock = sock
@@ -81,7 +81,7 @@ class ClientSender(threading.Thread):
 
 
 # Класс-приёмник сообщений с сервера. Принимает сообщения, выводит в консоль.
-class ClientReader(threading.Thread):
+class ClientReader(threading.Thread, metaclass=ClientMaker):
     def __init__(self, account_name, sock):
         self.account_name = account_name
         self.sock = sock
@@ -167,8 +167,7 @@ def main():
         print(f'Клиентский модуль запущен с именем: {client_name}')
 
     logger.info(
-        f'Запущен клиент с парамертами: адрес сервера: {server_address} , '
-        f'порт: {server_port}, имя пользователя: {client_name}')
+        f'Запущен клиент с парамертами: адрес сервера: {server_address} , порт: {server_port}, имя пользователя: {client_name}')
 
     # Инициализация сокета и сообщение серверу о нашем появлении
     try:
@@ -189,11 +188,10 @@ def main():
         exit(1)
     except (ConnectionRefusedError, ConnectionError):
         logger.critical(
-            f'Не удалось подключиться к серверу {server_address}:{server_port}, '
-            f'конечный компьютер отверг запрос на подключение.')
+            f'Не удалось подключиться к серверу {server_address}:{server_port}, конечный компьютер отверг запрос на подключение.')
         exit(1)
     else:
-        # Если соединение с сервером установлено корректно, запускаем клиентский процесс приёма сообщений
+        # Если соединение с сервером установлено корректно, запускаем клиенский процесс приёма сообщний
         module_reciver = ClientReader(client_name, transport)
         module_reciver.daemon = True
         module_reciver.start()
@@ -204,7 +202,7 @@ def main():
         module_sender.start()
         logger.debug('Запущены процессы')
 
-        # Watchdog основной цикл, если один из потоков завершён, то значит или потеряно соединение, или пользователь
+        # Watchdog основной цикл, если один из потоков завершён, то значит или потеряно соединение или пользователь
         # ввёл exit. Поскольку все события обработываются в потоках, достаточно просто завершить цикл.
         while True:
             time.sleep(1)

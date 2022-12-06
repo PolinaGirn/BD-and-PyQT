@@ -19,7 +19,7 @@ log_file = logging.FileHandler(path, encoding='utf8')
 log_file.setFormatter(client_formatter)
 
 # создаём регистратор и настраиваем его
-logger = logging.getLogger('client_dist')
+logger = logging.getLogger('client')
 logger.addHandler(steam)
 logger.addHandler(log_file)
 logger.setLevel(LOGGING_LEVEL)
