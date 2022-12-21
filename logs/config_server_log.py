@@ -20,7 +20,7 @@ log_file = logging.handlers.TimedRotatingFileHandler(path, encoding='utf8', inte
 log_file.setFormatter(server_formatter)
 
 # создаём регистратор и настраиваем его
-logger = logging.getLogger('server_dist')
+logger = logging.getLogger('server')
 logger.addHandler(steam)
 logger.addHandler(log_file)
 logger.setLevel(LOGGING_LEVEL)
